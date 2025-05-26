@@ -43,6 +43,12 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
+          "dependencies": {
+            "SpacetimeDB.Client": {
+              "target": "Package",
+              "version": "[0.8.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
