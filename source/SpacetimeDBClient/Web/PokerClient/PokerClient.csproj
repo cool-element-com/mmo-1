@@ -7,8 +7,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="SpacetimeDB.Client" Version="0.8.0" />
-  </ItemGroup>
+  <!-- 
+  Note: SpacetimeDB integration requires generating client code using the SpacetimeDB CLI
+  Run the following commands after setting up the SpacetimeDB module:
+  
+  spacetime generate csharp --module-path /path/to/module --output-dir ./Generated
+  
+  Then include the generated files in this project
+  -->
 
 </Project>
