@@ -1,0 +1,81 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/boyan.yankov/_repos/github/cool-element-com/mmo-1/source/SpacetimeDBClient/Web/PokerClient/PokerClient.csproj": {}
+  },
+  "projects": {
+    "/Users/boyan.yankov/_repos/github/cool-element-com/mmo-1/source/SpacetimeDBClient/Web/PokerClient/PokerClient.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/boyan.yankov/_repos/github/cool-element-com/mmo-1/source/SpacetimeDBClient/Web/PokerClient/PokerClient.csproj",
+        "projectName": "PokerClient",
+        "projectPath": "/Users/boyan.yankov/_repos/github/cool-element-com/mmo-1/source/SpacetimeDBClient/Web/PokerClient/PokerClient.csproj",
+        "packagesPath": "/Users/boyan.yankov/.nuget/packages/",
+        "outputPath": "/Users/boyan.yankov/_repos/github/cool-element-com/mmo-1/source/SpacetimeDBClient/Web/PokerClient/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/boyan.yankov/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.osx-arm64",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
