@@ -7,9 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <!-- SpacetimeDB.Client would be added here in a real project -->
-  <!-- <ItemGroup>
-    <PackageReference Include="SpacetimeDB.Client" Version="1.0.0" />
-  </ItemGroup> -->
+  <ItemGroup>
+    <PackageReference Include="SpacetimeDB.Client" Version="0.8.0" />
+  </ItemGroup>
 
 </Project>

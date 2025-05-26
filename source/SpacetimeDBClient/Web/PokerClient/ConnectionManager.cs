@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using SpacetimeDB.Client;
 
 namespace PokerClient
 {
@@ -8,19 +9,43 @@ namespace PokerClient
         private static readonly Lazy<ConnectionManager> _instance = new Lazy<ConnectionManager>(() => new ConnectionManager());
         public static ConnectionManager Instance => _instance.Value;
 
+        private SpacetimeDBClient _client;
         private SpacetimeDBConfig _config;
         private bool _isConnected;
         private int _reconnectAttempts;
 
         public bool IsConnected => _isConnected;
+        public SpacetimeDBClient Client => _client;
 
         public event EventHandler<bool> ConnectionStatusChanged;
 
         private ConnectionManager()
         {
+            _client = new SpacetimeDBClient();
             _config = SpacetimeDBConfig.Development;
             _isConnected = false;
             _reconnectAttempts = 0;
+
+            // Register connection event handlers
+            _client.OnConnected += (sender, args) =>
+            {
+                Console.WriteLine("Connected to SpacetimeDB");
+                _isConnected = true;
+                _reconnectAttempts = 0;
+                ConnectionStatusChanged?.Invoke(this, true);
+            };
+
+            _client.OnDisconnected += (sender, args) =>
+            {
+                Console.WriteLine("Disconnected from SpacetimeDB");
+                _isConnected = false;
+                ConnectionStatusChanged?.Invoke(this, false);
+                
+                if (_config.AutoReconnect)
+                {
+                    Task.Run(ReconnectAsync);
+                }
+            };
         }
 
         public void Configure(SpacetimeDBConfig config)
@@ -32,13 +57,12 @@ namespace PokerClient
         {
             try
             {
-                // Simulate connection to SpacetimeDB
-                await Task.Delay(500);
+                await _client.ConnectAsync(_config.ServerAddress, _config.DatabaseName);
                 
-                Console.WriteLine("Connected to SpacetimeDB");
-                _isConnected = true;
-                _reconnectAttempts = 0;
-                ConnectionStatusChanged?.Invoke(this, true);
+                if (!string.IsNullOrEmpty(_config.AuthToken))
+                {
+                    await _client.AuthenticateAsync(_config.AuthToken);
+                }
                 
                 return true;
             }
@@ -53,9 +77,7 @@ namespace PokerClient
         {
             if (_isConnected)
             {
-                await Task.Delay(200);
-                _isConnected = false;
-                ConnectionStatusChanged?.Invoke(this, false);
+                await _client.DisconnectAsync();
             }
         }
 
