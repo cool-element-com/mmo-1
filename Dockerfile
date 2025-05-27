@@ -32,15 +32,13 @@ RUN git clone https://github.com/cool-element-com/mmo-1.git \
 # Set the working directory to the project folder
 WORKDIR /app/mmo-1/source/SpacetimeDBClient/Web/PokerClient
 
-# Install SpacetimeDB CLI (commented out as it requires specific version matching)
-# Uncomment and modify this section when you have the correct CLI version
-# RUN curl -L https://github.com/clockworklabs/spacetimedb/releases/download/v0.x.x/spacetime-v0.x.x-x86_64-unknown-linux-gnu.tar.gz -o spacetime.tar.gz \
-#    && tar -xzf spacetime.tar.gz \
-#    && mv spacetime /usr/local/bin/ \
-#    && rm spacetime.tar.gz
+RUN curl -L https://github.com/clockworklabs/spacetimedb/releases/download/v0.x.x/spacetime-v0.x.x-x86_64-unknown-linux-gnu.tar.gz -o spacetime.tar.gz \
+   && tar -xzf spacetime.tar.gz \
+   && mv spacetime /usr/local/bin/ \
+   && rm spacetime.tar.gz
 
 # Expose port if needed
-# EXPOSE 5000
+EXPOSE 5000
 
 # Set the entry point to bash so the container stays running
 CMD ["/bin/bash"]
