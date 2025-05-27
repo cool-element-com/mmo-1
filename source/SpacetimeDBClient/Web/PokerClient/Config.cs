@@ -14,7 +14,7 @@ namespace PokerClient
         public static SpacetimeDBConfig Development => new SpacetimeDBConfig
         {
             ServerAddress = "localhost:3000",
-            DatabaseName = "YOUR_MODULE_ADDRESS", // Replace with your module address after publishing
+            DatabaseName = "c2005eec15129cff598f91d6c4e283fff0e45cf8bc9e4a31be6f3cf600d6dfd2", // Replace with your module address after publishing
             AutoReconnect = true,
             ReconnectAttempts = 5,
             ReconnectDelay = TimeSpan.FromSeconds(2)
