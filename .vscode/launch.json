@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET: Launch C# Client",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-csharp-client",
+      "program": "${workspaceFolder}/csharp-client/bin/Debug/net8.0/csharp-client.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/csharp-client",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "Rust: Launch SpacetimeDB Server",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/spacetime-server/target/debug/spacetime-server",
+      "args": [],
+      "cwd": "${workspaceFolder}/spacetime-server",
+      "preLaunchTask": "build-spacetime-server",
+      "stopOnEntry": false
+    }
+  ]
+}
