@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using SpacetimeDB.ClientSDK;
 using SpacetimeDB;
 using SpacetimeDB.Types;
 using System.Collections.Concurrent;

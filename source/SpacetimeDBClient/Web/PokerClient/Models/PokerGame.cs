@@ -1,5 +1,5 @@
 using System;
-using SpacetimeDB.Client.Attributes;
+using SpacetimeDB;
 
 namespace PokerClient.Models
 {
