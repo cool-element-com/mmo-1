@@ -14,7 +14,7 @@
     },
     {
       "name": "Rust: Launch SpacetimeDB Server",
-      "type": "lldb",
+      "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/spacetime-server/target/debug/spacetime-server",
       "args": [],
