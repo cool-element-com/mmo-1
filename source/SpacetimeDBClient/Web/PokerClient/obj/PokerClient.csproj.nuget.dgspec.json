@@ -37,6 +37,16 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "SpacetimeDB": {
+              "target": "Package",
+              "version": "[0.0.1, )"
+            },
+            "SpacetimeDB.ClientSDK": {
+              "target": "Package",
+              "version": "[1.1.5, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

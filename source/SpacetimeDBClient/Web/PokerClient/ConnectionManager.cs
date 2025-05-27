@@ -1,6 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using SpacetimeDB.Client;
+using SpacetimeDB.ClientSDK;
+using SpacetimeDB;
+using SpacetimeDB.Types;
+using System.Collections.Concurrent;
 
 namespace PokerClient
 {
