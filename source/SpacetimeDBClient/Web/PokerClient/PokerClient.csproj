@@ -2,18 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <!-- 
-  Note: SpacetimeDB integration requires generating client code using the SpacetimeDB CLI
-  Run the following commands after setting up the SpacetimeDB module:
-  
-  spacetime generate csharp --module-path /path/to/module --output-dir ./Generated
-  
-  Then include the generated files in this project
-  -->
 
 </Project>
