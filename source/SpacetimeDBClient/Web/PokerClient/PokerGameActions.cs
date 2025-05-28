@@ -9,21 +9,22 @@ namespace PokerClient
         private static readonly Lazy<PokerGameActions> _instance = new Lazy<PokerGameActions>(() => new PokerGameActions());
         public static PokerGameActions Instance => _instance.Value;
 
-        private SpacetimeDBClient Client => ConnectionManager.Instance.Client;
+        // Use ConnectionManager instead of direct client reference
+        private DbConnection? Connection => ConnectionManager.Instance.Connection;
 
         public async Task<string> CreateGameAsync(string gameName, decimal buyIn, int maxPlayers)
         {
             try
             {
-                var result = await Client.Reducer.CallAsync<string>("create_poker_game", new
+                await ConnectionManager.Instance.CallReducerAsync("create_poker_game", new
                 {
                     game_name = gameName,
-                    buy_in = (ulong)buyIn,
+                    buy_in = (ulong)(buyIn * 100), // Convert to cents
                     max_players = (uint)maxPlayers
                 });
 
-                Console.WriteLine($"Successfully created game {gameName} with ID {result}");
-                return result;
+                Console.WriteLine($"Successfully created game {gameName}");
+                return "game_created"; // SpacetimeDB reducers don't return values directly
             }
             catch (Exception ex)
             {
@@ -36,14 +37,14 @@ namespace PokerClient
         {
             try
             {
-                var result = await Client.Reducer.CallAsync<string>("join_poker_game", new
+                await ConnectionManager.Instance.CallReducerAsync("join_poker_game", new
                 {
                     game_id = gameId,
                     player_name = playerName
                 });
 
-                Console.WriteLine($"Successfully joined game {gameId} as {playerName} with player ID {result}");
-                return result;
+                Console.WriteLine($"Successfully joined game {gameId} as {playerName}");
+                return "player_joined"; // You'll get actual data from table update events
             }
             catch (Exception ex)
             {
@@ -56,11 +57,11 @@ namespace PokerClient
         {
             try
             {
-                await Client.Reducer.CallAsync("place_poker_bet", new
+                await ConnectionManager.Instance.CallReducerAsync("place_poker_bet", new
                 {
                     game_id = gameId,
                     player_id = playerId,
-                    amount = (ulong)amount
+                    amount = (ulong)(amount * 100) // Convert to cents
                 });
 
                 Console.WriteLine($"Successfully placed bet of {amount} for player {playerId}");
@@ -76,7 +77,7 @@ namespace PokerClient
         {
             try
             {
-                await Client.Reducer.CallAsync("fold_poker_hand", new
+                await ConnectionManager.Instance.CallReducerAsync("fold_poker_hand", new
                 {
                     game_id = gameId,
                     player_id = playerId

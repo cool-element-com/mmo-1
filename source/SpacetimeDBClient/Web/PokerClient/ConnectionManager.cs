@@ -1,8 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using SpacetimeDB;
-using SpacetimeDB.Types;
-using System.Collections.Concurrent;
+using SpacetimeDB; // Remove SpacetimeDB.Types - it doesn't exist
 
 namespace PokerClient
 {
@@ -11,43 +9,21 @@ namespace PokerClient
         private static readonly Lazy<ConnectionManager> _instance = new Lazy<ConnectionManager>(() => new ConnectionManager());
         public static ConnectionManager Instance => _instance.Value;
 
-        private SpacetimeDBClient _client;
+        private DbConnection? _connection; // Changed from SpacetimeDBClient
         private SpacetimeDBConfig _config;
         private bool _isConnected;
         private int _reconnectAttempts;
 
         public bool IsConnected => _isConnected;
-        public SpacetimeDBClient Client => _client;
+        public DbConnection? Connection => _connection; // Changed from SpacetimeDBClient
 
-        public event EventHandler<bool> ConnectionStatusChanged;
+        public event EventHandler<bool>? ConnectionStatusChanged;
 
         private ConnectionManager()
         {
-            _client = new SpacetimeDBClient();
             _config = SpacetimeDBConfig.Development;
             _isConnected = false;
             _reconnectAttempts = 0;
-
-            // Register connection event handlers
-            _client.OnConnected += (sender, args) =>
-            {
-                Console.WriteLine("Connected to SpacetimeDB");
-                _isConnected = true;
-                _reconnectAttempts = 0;
-                ConnectionStatusChanged?.Invoke(this, true);
-            };
-
-            _client.OnDisconnected += (sender, args) =>
-            {
-                Console.WriteLine("Disconnected from SpacetimeDB");
-                _isConnected = false;
-                ConnectionStatusChanged?.Invoke(this, false);
-                
-                if (_config.AutoReconnect)
-                {
-                    Task.Run(ReconnectAsync);
-                }
-            };
         }
 
         public void Configure(SpacetimeDBConfig config)
@@ -59,12 +35,21 @@ namespace PokerClient
         {
             try
             {
-                await _client.ConnectAsync(_config.ServerAddress, _config.DatabaseName);
-                
+                // Use proper DbConnection builder pattern
+                var builder = DbConnection.Builder()
+                    .OnConnect(OnConnectedCallback)
+                    .OnConnectError(OnConnectErrorCallback)
+                    .OnDisconnect(OnDisconnectedCallback)
+                    .OnIdentityReceived(OnIdentityReceivedCallback)
+                    .OnSubscriptionApplied(OnSubscriptionAppliedCallback);
+
                 if (!string.IsNullOrEmpty(_config.AuthToken))
                 {
-                    await _client.AuthenticateAsync(_config.AuthToken);
+                    builder = builder.WithToken(_config.AuthToken);
                 }
+
+                _connection = builder.Build();
+                await _connection.ConnectAsync(_config.ServerAddress, _config.DatabaseName);
                 
                 return true;
             }
@@ -77,9 +62,77 @@ namespace PokerClient
 
         public async Task DisconnectAsync()
         {
-            if (_isConnected)
+            if (_connection != null && _isConnected)
             {
-                await _client.DisconnectAsync();
+                await _connection.DisconnectAsync();
+                _connection = null;
+                _isConnected = false;
+            }
+        }
+
+        // Callback methods
+        private void OnConnectedCallback(DbConnection connection, Identity identity, string token)
+        {
+            Console.WriteLine($"Connected to SpacetimeDB with identity: {identity}");
+            _isConnected = true;
+            _reconnectAttempts = 0;
+            ConnectionStatusChanged?.Invoke(this, true);
+        }
+
+        private void OnConnectErrorCallback(DbConnection connection, SpacetimeDbException error)
+        {
+            Console.WriteLine($"Connection error: {error.Message}");
+            _isConnected = false;
+            ConnectionStatusChanged?.Invoke(this, false);
+            
+            if (_config.AutoReconnect)
+            {
+                Task.Run(ReconnectAsync);
+            }
+        }
+
+        private void OnDisconnectedCallback(DbConnection connection, SpacetimeDbException? error)
+        {
+            string message = error?.Message ?? "Disconnected";
+            Console.WriteLine($"Disconnected from SpacetimeDB: {message}");
+            _isConnected = false;
+            ConnectionStatusChanged?.Invoke(this, false);
+            
+            if (_config.AutoReconnect && error != null)
+            {
+                Task.Run(ReconnectAsync);
+            }
+        }
+
+        private void OnIdentityReceivedCallback(DbConnection connection, Identity identity, string token)
+        {
+            Console.WriteLine($"Identity received: {identity}");
+        }
+
+        private void OnSubscriptionAppliedCallback(DbConnection connection)
+        {
+            Console.WriteLine("Subscription applied - initial data received");
+        }
+
+        // Method to call reducers
+        public async Task<bool> CallReducerAsync<T>(string reducerName, T args)
+        {
+            if (_connection?.Reducers == null || !_isConnected)
+            {
+                Console.WriteLine("Cannot call reducer: not connected");
+                return false;
+            }
+
+            try
+            {
+                await _connection.Reducers.CallAsync(reducerName, args);
+                Console.WriteLine($"Successfully called reducer: {reducerName}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Reducer call failed for {reducerName}: {ex.Message}");
+                return false;
             }
         }
 

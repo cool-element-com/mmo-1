@@ -1,0 +1,24 @@
+using System;
+
+namespace PokerClient
+{
+    public class SpacetimeDBConfig
+    {
+        public string ServerAddress { get; set; } = "localhost:3000";
+        public string DatabaseName { get; set; } = "";
+        public string? AuthToken { get; set; }
+        public bool AutoReconnect { get; set; } = true;
+        public int ReconnectAttempts { get; set; } = 3;
+        public TimeSpan ReconnectDelay { get; set; } = TimeSpan.FromSeconds(1);
+
+        public static SpacetimeDBConfig Development => new SpacetimeDBConfig
+        {
+            ServerAddress = "localhost:3000",
+            DatabaseName = "poker-dev",
+            AutoReconnect = true,
+            ReconnectAttempts = 5,
+            ReconnectDelay = TimeSpan.FromSeconds(2)
+        };
+    }
+}
+

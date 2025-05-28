@@ -1,3 +1,6 @@
+using System;
+using System.Threading.Tasks;
+using SpacetimeDB;
 using PokerClient.Models;
 
 namespace PokerClient
@@ -7,38 +10,56 @@ namespace PokerClient
         private static readonly Lazy<SubscriptionManager> _instance = new Lazy<SubscriptionManager>(() => new SubscriptionManager());
         public static SubscriptionManager Instance => _instance.Value;
 
-        private SpacetimeDBClient Client => ConnectionManager.Instance.Client;
+        // Use ConnectionManager instead of direct client reference
+        private DbConnection? Connection => ConnectionManager.Instance.Connection;
 
-        public event EventHandler<PokerGame> GameUpdated;
-        public event EventHandler<PokerPlayer> PlayerUpdated;
+        public event EventHandler<PokerGame>? GameUpdated;
+        public event EventHandler<PokerPlayer>? PlayerUpdated;
 
         private SubscriptionManager()
         {
-            // Register for row update events
-            Client.OnRowsUpdated += (sender, args) =>
+            // Event handlers will be set up when connection is established
+            ConnectionManager.Instance.ConnectionStatusChanged += OnConnectionStatusChanged;
+        }
+
+        private void OnConnectionStatusChanged(object? sender, bool isConnected)
+        {
+            if (isConnected)
             {
-                foreach (var update in args.Updates)
-                {
-                    HandleRowUpdate(update);
-                }
-            };
+                SetupSubscriptions();
+            }
+        }
+
+        private async void SetupSubscriptions()
+        {
+            if (Connection == null) return;
+
+            try
+            {
+                // Subscribe to poker tables
+                await Connection.SubscribeAsync("SELECT * FROM poker_games");
+                await Connection.SubscribeAsync("SELECT * FROM poker_players");
+                
+                Console.WriteLine("Subscribed to poker tables");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Subscription error: {ex.Message}");
+            }
         }
 
         public async Task<bool> SubscribeToPokerGameAsync(string gameId)
         {
+            if (!ConnectionManager.Instance.IsConnected || Connection == null)
+            {
+                Console.WriteLine("Cannot subscribe: not connected to SpacetimeDB");
+                return false;
+            }
+
             try
             {
-                // Subscribe to game state
-                await Client.SubscribeAsync(
-                    "SELECT * FROM poker_games WHERE game_id = $1",
-                    new object[] { gameId }
-                );
-
-                // Subscribe to player data
-                await Client.SubscribeAsync(
-                    "SELECT * FROM poker_players WHERE game_id = $1",
-                    new object[] { gameId }
-                );
+                await Connection.SubscribeAsync($"SELECT * FROM poker_games WHERE game_id = '{gameId}'");
+                await Connection.SubscribeAsync($"SELECT * FROM poker_players WHERE game_id = '{gameId}'");
 
                 Console.WriteLine($"Subscribed to poker game {gameId}");
                 return true;
@@ -50,26 +71,7 @@ namespace PokerClient
             }
         }
 
-        private void HandleRowUpdate(RowUpdate update)
-        {
-            switch (update.TableName)
-            {
-                case "poker_games":
-                    var game = update.DeserializeAs<PokerGame>();
-                    Console.WriteLine($"Game updated: {game.GameId}");
-                    GameUpdated?.Invoke(this, game);
-                    break;
-
-                case "poker_players":
-                    var player = update.DeserializeAs<PokerPlayer>();
-                    Console.WriteLine($"Player updated: {player.PlayerId}");
-                    PlayerUpdated?.Invoke(this, player);
-                    break;
-
-                default:
-                    Console.WriteLine($"Unhandled table update: {update.TableName}");
-                    break;
-            }
-        }
+        // Remove the RowUpdate handler - this will be replaced with proper table event handlers
+        // once you have generated code or can access the table objects
     }
 }
