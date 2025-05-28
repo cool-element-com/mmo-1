@@ -2,9 +2,6 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "SpacetimeDB/0.0.1": {
-        "type": "package"
-      },
       "SpacetimeDB.BSATN.Runtime/1.1.1": {
         "type": "package",
         "compile": {
@@ -33,18 +30,6 @@
     }
   },
   "libraries": {
-    "SpacetimeDB/0.0.1": {
-      "sha512": "RK/RinWMezj2YVVeemDxekpbT4E3bs0YkDASVjBfpx3by/wiL8lNQeQbVWzDV9K6CdIMwXBTcroFqSCzrqALZw==",
-      "type": "package",
-      "path": "spacetimedb/0.0.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "README.md",
-        "spacetimedb.0.0.1.nupkg.sha512",
-        "spacetimedb.nuspec"
-      ]
-    },
     "SpacetimeDB.BSATN.Runtime/1.1.1": {
       "sha512": "ImBHBd2CVBheQOpPCxQJ3GdFUHURe7I5ElpY9U+hCNTackM4hEvJBRD/cfU+EbPUFJJ2Ys9FpFNztKC1eHsnpw==",
       "type": "package",
@@ -81,7 +66,6 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "SpacetimeDB >= 0.0.1",
       "SpacetimeDB.ClientSDK >= 1.1.5"
     ]
   },
@@ -122,10 +106,6 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
-          "SpacetimeDB": {
-            "target": "Package",
-            "version": "[0.0.1, )"
-          },
           "SpacetimeDB.ClientSDK": {
             "target": "Package",
             "version": "[1.1.5, )"

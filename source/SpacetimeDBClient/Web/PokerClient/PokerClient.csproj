@@ -8,11 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SpacetimeDB" Version="0.0.1" />
     <PackageReference Include="SpacetimeDB.ClientSDK" Version="1.1.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Generated\**\*.cs" />
   </ItemGroup>
 </Project>
