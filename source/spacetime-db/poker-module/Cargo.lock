@@ -15,6 +15,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "allocator-api2"
+version = "0.2.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
+
+[[package]]
 name = "anyhow"
 version = "1.0.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -28,12 +34,6 @@ checksum = "f0e60b75072ecd4168020818c0107f2857bb6c4e64252d8d3983f6263b40a5c3"
 dependencies = [
  "num-traits",
 ]
-
-[[package]]
-name = "arrayref"
-version = "0.3.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76a2e8124351fda1ef8aaaa3bbd7ebbcb486bbcd4225aca0aa0d84bb2db8fecb"
 
 [[package]]
 name = "arrayvec"
@@ -54,19 +54,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b8e56985ec62d17e9c1001dc89c88ecd7dc08e47eba5ec7c29c7b5eeecde967"
 
 [[package]]
-name = "blake3"
-version = "1.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3888aaa89e4b2a40fca9848e400f6a658a5a3978de7be858e209cafa8be9a4a0"
-dependencies = [
- "arrayref",
- "arrayvec",
- "cc",
- "cfg-if",
- "constant_time_eq",
-]
-
-[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -76,46 +63,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "bytemuck"
-version = "1.23.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c76a5792e44e4abe34d3abf15636779261d45a7450612059293d1d2cfc63422"
-
-[[package]]
 name = "bytes"
 version = "1.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a"
 
 [[package]]
-name = "cc"
-version = "1.2.26"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "956a5e21988b87f372569b66183b78babf23ebc2e744b733e4350a752c4dafac"
-dependencies = [
- "shlex",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
-
-[[package]]
-name = "chrono"
-version = "0.4.41"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c469d952047f47f91b68d1cba3f10d63c11d73e4636f24f08daf0278abf01c4d"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
-name = "constant_time_eq"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
 
 [[package]]
 name = "convert_case"
@@ -187,25 +144,10 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1e6a265c649f3f5979b601d26f1d05ada116434c87741c9493cb56218f76cbc"
 dependencies = [
- "heck 0.5.0",
+ "heck",
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "equivalent"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
-
-[[package]]
-name = "ethnum"
-version = "1.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca81e6b4777c89fd810c25a4be2b1bd93ea034fbe58e6a75216a34c6b82c539b"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -231,18 +173,13 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.15.4"
+version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5971ac85611da7067dbfcabef3c70ebb5606018acd9e2a3903a0da507521e0d5"
+checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
 dependencies = [
- "equivalent",
+ "ahash",
+ "allocator-api2",
 ]
-
-[[package]]
-name = "heck"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
 
 [[package]]
 name = "heck"
@@ -405,26 +342,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56e6fa9c48d24d85fb3de5ad847117517440f6beceb7798af16b4a87d616b8d0"
 
 [[package]]
-name = "serde"
-version = "1.0.219"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6"
-dependencies = [
- "serde_derive",
-]
-
-[[package]]
-name = "serde_derive"
-version = "1.0.219"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b0276cf7f2c73365f7157c8123c21cd9a50fbbd844757af28ca1f5925fc2a00"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "sha3"
 version = "0.10.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -435,12 +352,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "shlex"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
-
-[[package]]
 name = "smallvec"
 version = "1.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -448,11 +359,10 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "spacetimedb"
-version = "1.1.2"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41cfbca6e4796309179af17942f37f5e1a7297e7a91fa33d2a20ccad48f50e35"
+checksum = "440014d095615cee30369684a735900539ba9e636be1aa46e63176892058df17"
 dependencies = [
- "bytemuck",
  "derive_more",
  "getrandom",
  "log",
@@ -466,11 +376,11 @@ dependencies = [
 
 [[package]]
 name = "spacetimedb-bindings-macro"
-version = "1.1.2"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c60767c5e80fb1d0753834b894c9c3f9eb0ddba351ef4681fe714ff1024e727"
+checksum = "93cad71ad8a32bb99d9a1aec478606e1cc21034546d10c540495b1a2e6e93858"
 dependencies = [
- "heck 0.4.1",
+ "bitflags",
  "humantime",
  "proc-macro2",
  "quote",
@@ -480,20 +390,19 @@ dependencies = [
 
 [[package]]
 name = "spacetimedb-bindings-sys"
-version = "1.1.2"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b5f6d06e1df203c97ecb7cd404e6a9a1920bfc3b7e16b40d650be6bfabe3292"
+checksum = "65fa46337c62a64d9d93487d047ad546e891416e2662ecb7b6b79f03291800ee"
 dependencies = [
  "spacetimedb-primitives",
 ]
 
 [[package]]
 name = "spacetimedb-data-structures"
-version = "1.1.2"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f857c5f4ea6c3d13f9d78d3aaa36fd31d1879331fdd15d3f1de0ecbc4e6e1968"
+checksum = "091334a70828ba7aa97af715b0ea3907625542b43717e586785735bdc1782d6b"
 dependencies = [
- "ahash",
  "hashbrown",
  "nohash-hasher",
  "smallvec",
@@ -502,14 +411,12 @@ dependencies = [
 
 [[package]]
 name = "spacetimedb-lib"
-version = "1.1.2"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69e1c1bac730f946c8ac07d9e71aee934eb1a82c02dcb6757a3763cdab808d1f"
+checksum = "128a24ab5436c5a6e22eea94ecd0269c8394c71468f10400d128765e4cc0a29c"
 dependencies = [
  "anyhow",
  "bitflags",
- "blake3",
- "chrono",
  "derive_more",
  "enum-as-inner",
  "hex",
@@ -523,32 +430,27 @@ dependencies = [
 
 [[package]]
 name = "spacetimedb-primitives"
-version = "1.1.2"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f149b0933112064b4d3424bfae9b6dc694d4bc2e3ca80b6974a0628e81b61c70"
+checksum = "29d85ff9d4d9de059b323647b04da8040c7a98afd47d173c8975bc7717e7d9e4"
 dependencies = [
  "bitflags",
  "either",
- "itertools",
  "nohash-hasher",
 ]
 
 [[package]]
 name = "spacetimedb-sats"
-version = "1.1.2"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0e4739251061b529df194318f78c85482dff282d41175eeefe1a1f9c5ce556f"
+checksum = "a39b839937bdcb3a3a8709bd87ff584b34cf01eb829366ad738055c71b95ff00"
 dependencies = [
- "anyhow",
  "arrayvec",
  "bitflags",
- "bytemuck",
  "bytes",
- "chrono",
  "decorum",
  "derive_more",
  "enum-as-inner",
- "ethnum",
  "hex",
  "itertools",
  "second-stack",
