@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "TdYltse8h+7yKTylniKGSk6iYpbm8UelfLi6fGhS3z99MHfO8q2mILQ5dnmJMwywPIi3QoZ7CIcpCuZeoiSPgg==",
+  "success": true,
+  "projectFilePath": "/Users/boyan.yankov/_repos/github/cool-element-com/mmo-1/source/SpacetimeDBClient/Web/PokerClient/PokerClient.csproj",
+  "expectedPackageFiles": [
+    "/Users/boyan.yankov/.nuget/packages/spacetimedb.bsatn.runtime/1.1.1/spacetimedb.bsatn.runtime.1.1.1.nupkg.sha512",
+    "/Users/boyan.yankov/.nuget/packages/spacetimedb.clientsdk/1.1.5/spacetimedb.clientsdk.1.1.5.nupkg.sha512"
+  ],
+  "logs": []
+}
