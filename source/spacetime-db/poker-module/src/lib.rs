@@ -1,12 +1,13 @@
 // SpacetimeDB Schema for Poker Game Module
 // This file should be used to create a module on your local SpacetimeDB instance
 
-use spacetimedb::{spacetimedb, Identity, ReducerContext, Timestamp};
+use spacetimedb::{spacetimedb, Identity, ReducerContext, Timestamp, Table};
 
 // Define the poker game table
 #[spacetimedb(table)]
+#[derive(Clone)]
 pub struct PokerGame {
-    #[primarykey]
+    #[spacetimedb(primary_key)]
     pub game_id: String,
     pub name: String,
     pub status: String,
@@ -20,8 +21,9 @@ pub struct PokerGame {
 
 // Define the poker player table
 #[spacetimedb(table)]
+#[derive(Clone)]
 pub struct PokerPlayer {
-    #[primarykey]
+    #[spacetimedb(primary_key)]
     pub player_id: String,
     pub game_id: String,
     pub name: String,
@@ -35,10 +37,10 @@ pub struct PokerPlayer {
 // Reducer to create a new game
 #[spacetimedb(reducer)]
 pub fn create_poker_game(ctx: ReducerContext, game_name: String, buy_in: u64, max_players: u32) -> Result<String, String> {
-    let game_id = format!("game_{}", ctx.timestamp.micros());
+    let game_id = format!("game_{}", ctx.timestamp.as_micros_since_epoch());
     let now = ctx.timestamp;
     
-    PokerGame::insert(PokerGame {
+    ctx.db.poker_game().insert(PokerGame {
         game_id: game_id.clone(),
         name: game_name,
         status: "waiting".to_string(),
@@ -48,7 +50,7 @@ pub fn create_poker_game(ctx: ReducerContext, game_name: String, buy_in: u64, ma
         max_players,
         created_at: now,
         updated_at: now,
-    })?;
+    });
     
     Ok(game_id)
 }
@@ -57,22 +59,25 @@ pub fn create_poker_game(ctx: ReducerContext, game_name: String, buy_in: u64, ma
 #[spacetimedb(reducer)]
 pub fn join_poker_game(ctx: ReducerContext, game_id: String, player_name: String) -> Result<String, String> {
     // Check if game exists
-    let game = PokerGame::filter_by_game_id(&game_id)
-        .first()
+    let game = ctx.db.poker_game()
+        .filter_by_game_id(&game_id)
+        .next()
         .ok_or_else(|| "Game not found".to_string())?;
         
     // Check if game is full
-    let player_count = PokerPlayer::filter_by_game_id(&game_id).count();
+    let player_count = ctx.db.poker_player()
+        .filter_by_game_id(&game_id)
+        .count();
     if player_count >= game.max_players as usize {
         return Err("Game is full".to_string());
     }
     
     // Create player ID
-    let player_id = format!("player_{}_{}", ctx.sender, ctx.timestamp.micros());
+    let player_id = format!("player_{}_{}", ctx.sender, ctx.timestamp.as_micros_since_epoch());
     let now = ctx.timestamp;
     
     // Insert player
-    PokerPlayer::insert(PokerPlayer {
+    ctx.db.poker_player().insert(PokerPlayer {
         player_id: player_id.clone(),
         game_id,
         name: player_name,
@@ -81,7 +86,7 @@ pub fn join_poker_game(ctx: ReducerContext, game_id: String, player_name: String
         is_folded: false,
         current_bet: 0,
         joined_at: now,
-    })?;
+    });
     
     Ok(player_id)
 }
@@ -90,8 +95,9 @@ pub fn join_poker_game(ctx: ReducerContext, game_id: String, player_name: String
 #[spacetimedb(reducer)]
 pub fn place_poker_bet(ctx: ReducerContext, game_id: String, player_id: String, amount: u64) -> Result<(), String> {
     // Check if player exists
-    let mut player = PokerPlayer::filter_by_player_id(&player_id)
-        .first()
+    let mut player = ctx.db.poker_player()
+        .filter_by_player_id(&player_id)
+        .next()
         .ok_or_else(|| "Player not found".to_string())?;
         
     // Check if player has enough chips
@@ -102,16 +108,17 @@ pub fn place_poker_bet(ctx: ReducerContext, game_id: String, player_id: String, 
     // Update player chips and bet
     player.chips -= amount;
     player.current_bet += amount;
-    PokerPlayer::update_by_player_id(&player_id, player)?;
+    ctx.db.poker_player().update_by_player_id(&player_id, player);
     
     // Update game pot
-    let mut game = PokerGame::filter_by_game_id(&game_id)
-        .first()
+    let mut game = ctx.db.poker_game()
+        .filter_by_game_id(&game_id)
+        .next()
         .ok_or_else(|| "Game not found".to_string())?;
         
     game.pot_amount += amount;
     game.updated_at = ctx.timestamp;
-    PokerGame::update_by_game_id(&game_id, game)?;
+    ctx.db.poker_game().update_by_game_id(&game_id, game);
     
     Ok(())
 }
@@ -120,21 +127,23 @@ pub fn place_poker_bet(ctx: ReducerContext, game_id: String, player_id: String, 
 #[spacetimedb(reducer)]
 pub fn fold_poker_hand(ctx: ReducerContext, game_id: String, player_id: String) -> Result<(), String> {
     // Check if player exists
-    let mut player = PokerPlayer::filter_by_player_id(&player_id)
-        .first()
+    let mut player = ctx.db.poker_player()
+        .filter_by_player_id(&player_id)
+        .next()
         .ok_or_else(|| "Player not found".to_string())?;
         
     // Update player status
     player.is_folded = true;
-    PokerPlayer::update_by_player_id(&player_id, player)?;
+    ctx.db.poker_player().update_by_player_id(&player_id, player);
     
     // Update game timestamp
-    let mut game = PokerGame::filter_by_game_id(&game_id)
-        .first()
+    let mut game = ctx.db.poker_game()
+        .filter_by_game_id(&game_id)
+        .next()
         .ok_or_else(|| "Game not found".to_string())?;
         
     game.updated_at = ctx.timestamp;
-    PokerGame::update_by_game_id(&game_id, game)?;
+    ctx.db.poker_game().update_by_game_id(&game_id, game);
     
     Ok(())
 }
