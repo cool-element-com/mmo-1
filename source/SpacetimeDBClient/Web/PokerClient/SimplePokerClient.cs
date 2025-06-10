@@ -1,11 +1,10 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using SpacetimeDB.Types;
 
 namespace PokerClient
 {
-    class Program
+    class SimplePokerClient
     {
         static async Task Main(string[] args)
         {

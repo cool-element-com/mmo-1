@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using SpacetimeDB;
 
 namespace PokerClient
 {
@@ -9,18 +8,17 @@ namespace PokerClient
         private static readonly Lazy<PokerGameActions> _instance = new Lazy<PokerGameActions>(() => new PokerGameActions());
         public static PokerGameActions Instance => _instance.Value;
 
-        // Use ConnectionManager instead of direct client reference
-        private DbConnection? Connection => ConnectionManager.Instance.Connection;
+        private CustomDbConnection? Connection => ConnectionManager.Instance.Connection;
 
         public async Task<string> CreateGameAsync(string gameName, decimal buyIn, int maxPlayers)
         {
             try
             {
-                await ConnectionManager.Instance.CallReducerAsync("create_poker_game", new
+                await ConnectionManager.Instance.CallReducerAsync("create_poker_game", new CreatePokerGameArgs
                 {
-                    game_name = gameName,
-                    buy_in = (ulong)(buyIn * 100), // Convert to cents
-                    max_players = (uint)maxPlayers
+                    GameName = gameName,
+                    BuyIn = (uint)(buyIn * 100), // Convert to cents
+                    MaxPlayers = (uint)maxPlayers
                 });
 
                 Console.WriteLine($"Successfully created game {gameName}");
@@ -37,10 +35,10 @@ namespace PokerClient
         {
             try
             {
-                await ConnectionManager.Instance.CallReducerAsync("join_poker_game", new
+                await ConnectionManager.Instance.CallReducerAsync("join_poker_game", new JoinPokerGameArgs
                 {
-                    game_id = gameId,
-                    player_name = playerName
+                    GameId = gameId,
+                    PlayerName = playerName
                 });
 
                 Console.WriteLine($"Successfully joined game {gameId} as {playerName}");
@@ -57,11 +55,11 @@ namespace PokerClient
         {
             try
             {
-                await ConnectionManager.Instance.CallReducerAsync("place_poker_bet", new
+                await ConnectionManager.Instance.CallReducerAsync("place_poker_bet", new PlacePokerBetArgs
                 {
-                    game_id = gameId,
-                    player_id = playerId,
-                    amount = (ulong)(amount * 100) // Convert to cents
+                    GameId = gameId,
+                    PlayerId = playerId,
+                    Amount = (uint)(amount * 100) // Convert to cents
                 });
 
                 Console.WriteLine($"Successfully placed bet of {amount} for player {playerId}");
@@ -77,10 +75,10 @@ namespace PokerClient
         {
             try
             {
-                await ConnectionManager.Instance.CallReducerAsync("fold_poker_hand", new
+                await ConnectionManager.Instance.CallReducerAsync("fold_poker_hand", new FoldPokerHandArgs
                 {
-                    game_id = gameId,
-                    player_id = playerId
+                    GameId = gameId,
+                    PlayerId = playerId
                 });
 
                 Console.WriteLine($"Player {playerId} folded their hand");

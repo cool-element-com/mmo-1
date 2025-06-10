@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using SpacetimeDB;
-using PokerClient.Models;
+using SpacetimeDB.Types;
 
 namespace PokerClient
 {
@@ -10,11 +9,10 @@ namespace PokerClient
         private static readonly Lazy<SubscriptionManager> _instance = new Lazy<SubscriptionManager>(() => new SubscriptionManager());
         public static SubscriptionManager Instance => _instance.Value;
 
-        // Use ConnectionManager instead of direct client reference
-        private DbConnection? Connection => ConnectionManager.Instance.Connection;
+        private CustomDbConnection? Connection => ConnectionManager.Instance.Connection;
 
-        public event EventHandler<PokerGame>? GameUpdated;
-        public event EventHandler<PokerPlayer>? PlayerUpdated;
+        public event EventHandler<SpacetimeDB.Types.PokerGame>? GameUpdated;
+        public event EventHandler<SpacetimeDB.Types.PokerPlayer>? PlayerUpdated;
 
         private SubscriptionManager()
         {
@@ -37,8 +35,8 @@ namespace PokerClient
             try
             {
                 // Subscribe to poker tables
-                await Connection.SubscribeAsync("SELECT * FROM poker_games");
-                await Connection.SubscribeAsync("SELECT * FROM poker_players");
+                await Connection.SubscribeAsync("SELECT * FROM PokerGame");
+                await Connection.SubscribeAsync("SELECT * FROM PokerPlayer");
                 
                 Console.WriteLine("Subscribed to poker tables");
             }
@@ -58,8 +56,8 @@ namespace PokerClient
 
             try
             {
-                await Connection.SubscribeAsync($"SELECT * FROM poker_games WHERE game_id = '{gameId}'");
-                await Connection.SubscribeAsync($"SELECT * FROM poker_players WHERE game_id = '{gameId}'");
+                await Connection.SubscribeAsync($"SELECT * FROM PokerGame WHERE game_id = '{gameId}'");
+                await Connection.SubscribeAsync($"SELECT * FROM PokerPlayer WHERE game_id = '{gameId}'");
 
                 Console.WriteLine($"Subscribed to poker game {gameId}");
                 return true;

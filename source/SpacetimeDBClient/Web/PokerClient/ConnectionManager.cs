@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using SpacetimeDB; // Remove SpacetimeDB.Types - it doesn't exist
 
 namespace PokerClient
 {
@@ -9,13 +8,13 @@ namespace PokerClient
         private static readonly Lazy<ConnectionManager> _instance = new Lazy<ConnectionManager>(() => new ConnectionManager());
         public static ConnectionManager Instance => _instance.Value;
 
-        private DbConnection? _connection; // Changed from SpacetimeDBClient
+        private CustomDbConnection? _connection;
         private SpacetimeDBConfig _config;
         private bool _isConnected;
         private int _reconnectAttempts;
 
         public bool IsConnected => _isConnected;
-        public DbConnection? Connection => _connection; // Changed from SpacetimeDBClient
+        public CustomDbConnection? Connection => _connection;
 
         public event EventHandler<bool>? ConnectionStatusChanged;
 
@@ -35,27 +34,19 @@ namespace PokerClient
         {
             try
             {
-                // Use proper DbConnection builder pattern
-                var builder = DbConnection.Builder()
-                    .OnConnect(OnConnectedCallback)
-                    .OnConnectError(OnConnectErrorCallback)
-                    .OnDisconnect(OnDisconnectedCallback)
-                    .OnIdentityReceived(OnIdentityReceivedCallback)
-                    .OnSubscriptionApplied(OnSubscriptionAppliedCallback);
-
-                if (!string.IsNullOrEmpty(_config.AuthToken))
-                {
-                    builder = builder.WithToken(_config.AuthToken);
-                }
-
-                _connection = builder.Build();
-                await _connection.ConnectAsync(_config.ServerAddress, _config.DatabaseName);
+                _connection = new CustomDbConnection();
+                _connection.ConnectionStatusChanged += OnConnectionStatusChanged;
                 
-                return true;
+                var success = await _connection.ConnectAsync(_config.ServerAddress, _config.DatabaseName);
+                _isConnected = success;
+                _reconnectAttempts = 0;
+                
+                return success;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Connection error: {ex.Message}");
+                _isConnected = false;
                 return false;
             }
         }
@@ -70,70 +61,29 @@ namespace PokerClient
             }
         }
 
-        // Callback methods
-        private void OnConnectedCallback(DbConnection connection, Identity identity, string token)
+        // Simplified callback method
+        private void OnConnectionStatusChanged(CustomDbConnection connection, bool isConnected)
         {
-            Console.WriteLine($"Connected to SpacetimeDB with identity: {identity}");
-            _isConnected = true;
-            _reconnectAttempts = 0;
-            ConnectionStatusChanged?.Invoke(this, true);
-        }
-
-        private void OnConnectErrorCallback(DbConnection connection, SpacetimeDbException error)
-        {
-            Console.WriteLine($"Connection error: {error.Message}");
-            _isConnected = false;
-            ConnectionStatusChanged?.Invoke(this, false);
+            _isConnected = isConnected;
+            Console.WriteLine($"Connection status changed: {(isConnected ? "Connected" : "Disconnected")}");
+            ConnectionStatusChanged?.Invoke(this, isConnected);
             
-            if (_config.AutoReconnect)
+            if (!isConnected && _config.AutoReconnect)
             {
                 Task.Run(ReconnectAsync);
             }
         }
 
-        private void OnDisconnectedCallback(DbConnection connection, SpacetimeDbException? error)
-        {
-            string message = error?.Message ?? "Disconnected";
-            Console.WriteLine($"Disconnected from SpacetimeDB: {message}");
-            _isConnected = false;
-            ConnectionStatusChanged?.Invoke(this, false);
-            
-            if (_config.AutoReconnect && error != null)
-            {
-                Task.Run(ReconnectAsync);
-            }
-        }
-
-        private void OnIdentityReceivedCallback(DbConnection connection, Identity identity, string token)
-        {
-            Console.WriteLine($"Identity received: {identity}");
-        }
-
-        private void OnSubscriptionAppliedCallback(DbConnection connection)
-        {
-            Console.WriteLine("Subscription applied - initial data received");
-        }
-
-        // Method to call reducers
+        // Method to call reducers - delegate to our custom connection
         public async Task<bool> CallReducerAsync<T>(string reducerName, T args)
         {
-            if (_connection?.Reducers == null || !_isConnected)
+            if (_connection == null || !_isConnected)
             {
                 Console.WriteLine("Cannot call reducer: not connected");
                 return false;
             }
 
-            try
-            {
-                await _connection.Reducers.CallAsync(reducerName, args);
-                Console.WriteLine($"Successfully called reducer: {reducerName}");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Reducer call failed for {reducerName}: {ex.Message}");
-                return false;
-            }
+            return await _connection.CallReducerAsync(reducerName, args);
         }
 
         private async Task ReconnectAsync()
